@@ -1,47 +1,52 @@
 import React, { useState } from 'react';
-import { Button, TextField, Grid ,Box} from '@mui/material';
+import { Button, TextField, Grid, Snackbar, Alert } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
 function App() {
 
-  const gradientColors = 'linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)';
-  const useStyles = makeStyles({
-    root: {
-      '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-        borderWidth: '2px',
-        borderColor: gradientColors,
-      },
-      '& .MuiOutlinedInput-notchedOutline': {
-        borderColor: 'transparent',
-        backgroundImage: gradientColors,
-        backgroundClip: 'padding-box',
-      },
-      '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
-        borderColor: gradientColors,
-      },
-    },
-    gradientOutline: {
-      background: 'none',
-      borderImage: 'linear-gradient(to right, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)',
-      borderImageSlice: '1',
-      outline: 'none',
-      borderWidth: '2px',
-      borderRadius: '4px',
-      padding: '8px',
-      transition: 'border-color 0.3s ease',
-      '&:focus': {
-        borderColor: '#4f5bd5',
-      },
-    }
-  });
-  const classes = useStyles();
-
   const [heading, setHeading] = useState('');
   const [memeText, setMemeText] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Call your Java API here to upload the meme with the heading and meme text
+
+    const data = {
+      heading: heading,
+      imageText: memeText
+    };
+
+    fetch('https://u411m4oucg.execute-api.us-east-1.amazonaws.com/dev', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+      .then(response => {
+        setSnackbarOpen(true);
+        if (response.ok) {
+          setSnackbarSeverity('success');
+          return response.json();
+        } else {
+          setSnackbarSeverity('error');
+          throw new Error(response.statusText);
+        }
+      })
+      .then(result => {
+        setSnackbarMessage(result);
+      })
+      .catch(error => {
+        setSnackbarMessage(error.message);
+      });
+  };
+
+
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
 
@@ -55,16 +60,15 @@ function App() {
       alignItems="center"
     >
 
-    <Grid item sx={{ marginY: '0.5%' }} />
+      <Grid item sx={{ marginY: '0.5%' }} />
 
-      <h2 style={{ background: gradientColors, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+      <h2 >
         Upload Meme to Instagram
       </h2>
-  
+
       <TextField
         id="heading"
         label="Heading"
-        value={heading}
         onChange={(e) => setHeading(e.target.value)}
         sx={{
           width: '40%',
@@ -72,14 +76,10 @@ function App() {
             borderWidth: '2px',
           },
         }}
-        InputProps={{
-          classes: { root: classes.root },
-        }}
-        className={classes.gradientOutline}
       />
-  
+
       <Grid item sx={{ marginY: '0.5%' }} />
-  
+
       <TextField
         id="memeText"
         label="Meme Text"
@@ -94,25 +94,13 @@ function App() {
             borderWidth: '2px',
           },
         }}
-        InputProps={{
-          classes: { root: classes.root },
-        }}
-        className={classes.gradientOutline}
       />
-  
+
       <Grid item container justifyContent="center" spacing={2}>
         <Grid item>
           <Button
             variant="contained"
             color="primary"
-            disabled
-            sx={{
-              backgroundImage: gradientColors,
-              backgroundClip: 'padding-box',
-              '&:hover': {
-                backgroundImage: gradientColors,
-              },
-            }}
           >
             Schedule
           </Button>
@@ -122,18 +110,16 @@ function App() {
             variant="contained"
             color="primary"
             onClick={handleSubmit}
-            sx={{
-              backgroundImage: gradientColors,
-              backgroundClip: 'padding-box',
-              '&:hover': {
-                backgroundImage: gradientColors,
-              },
-            }}
           >
             Post Now
           </Button>
         </Grid>
       </Grid>
+      <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Grid>
   );
 }
