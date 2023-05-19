@@ -33,7 +33,7 @@ function App() {
     }
     try {
       setLoading(true);
-      const message = "I'm looking for a romantic pickup line inspired by software engineering terms,"
+      const message = "I'm looking for a love.flirting pickup lines inspired by software engineering terms,"
         + " specifically the concept of a " + prompt + ". Can you provide me a pickup line (excluding 'Are you a')"
         + " along with a heading of three words ? "
         + "Please format the response as a JSON object with 'heading' and 'pickupLine' fields."
@@ -62,8 +62,6 @@ function App() {
       setSnackbarOpen(true);
       return;
     }
-    setPinError(false);
-
     e.preventDefault();
 
     const data = {
@@ -74,17 +72,22 @@ function App() {
       }
     };
 
-    setSnackbarOpen(true);
     setLoading(true);
     try {
       const sent = await sendSQSMessage(JSON.stringify(data));
+      console.log(sent);
       if (sent === 'Message sent') {
+        setSnackbarOpen(true);
         setSnackbarSeverity('success');
         setSnackbarMessage("Post scheduled successfully");
       } else {
+        setSnackbarOpen(true);
         setSnackbarSeverity('error');
         setSnackbarMessage(sent);
       }
+    }
+    catch(error){
+      console.log(error);
     }
     finally {
       setLoading(false);

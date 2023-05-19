@@ -22,7 +22,6 @@ async function generateLovePickupLine(message) {
       { role: "user", content: message }
     ]
   });
-  console.log(completions.data);
   return completions.data.choices[0].message.content;
 }
 
