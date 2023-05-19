@@ -30,7 +30,7 @@ function App() {
       setSnackbarMessage("Prompt text is empty");
       return;
     }
-
+    try{
     setLoading(true);
       const message = "I'm looking for a romantic pickup line inspired by software engineering terms,"
         + " specifically the concept of a " + prompt + ". Can you provide me a pickup line (excluding 'Are you a')"
@@ -41,7 +41,9 @@ function App() {
       setHeading(obj.heading);
       setMemeText(obj.pickupLine);
       console.log(result);
+    }finally{
       setLoading(false);
+    }
   }
 
   const schedulePost = (e) => {
