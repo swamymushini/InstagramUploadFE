@@ -5,6 +5,7 @@ import { Grid, Snackbar, Alert } from '@mui/material';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import generateLovePickupLine from './openAI.js';
+import sendSQSMessage from './sqsSend.js';
 
 function App() {
 
@@ -23,15 +24,15 @@ function App() {
   };
 
   const handlePrompts = async () => {
-    
+
     if (prompt === '') {
       setSnackbarOpen(true);
       setSnackbarSeverity('error');
       setSnackbarMessage("Prompt text is empty");
       return;
     }
-    try{
-    setLoading(true);
+    try {
+      setLoading(true);
       const message = "I'm looking for a romantic pickup line inspired by software engineering terms,"
         + " specifically the concept of a " + prompt + ". Can you provide me a pickup line (excluding 'Are you a')"
         + " along with a heading of three words ? "
@@ -41,12 +42,12 @@ function App() {
       setHeading(obj.heading);
       setMemeText(obj.pickupLine);
       console.log(result);
-    }finally{
+    } finally {
       setLoading(false);
     }
   }
 
-  const schedulePost = (e) => {
+  const schedulePost = async (e) => {
 
     if (heading === '' || memeText === '' || pin === '') {
       setSnackbarOpen(true);
@@ -56,7 +57,6 @@ function App() {
     }
 
     if (pin !== '7417') {
-      // setPinError(true);
       setSnackbarSeverity('error');
       setSnackbarMessage("Enter correct pin");
       setSnackbarOpen(true);
@@ -74,32 +74,21 @@ function App() {
       }
     };
 
+    setSnackbarOpen(true);
     setLoading(true);
-    fetch('https://tb6x8fwl43.execute-api.us-east-1.amazonaws.com/dev/scheduler', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-      .then(response => {
-        setSnackbarOpen(true);
-        if (response.ok) {
-          setSnackbarSeverity('success');
-          return response.json();
-        } else {
-          setSnackbarSeverity('error');
-          throw new Error(response.statusText);
-        }
-      })
-      .then(result => {
-        setLoading(false);
+    try {
+      const sent = await sendSQSMessage(JSON.stringify(data));
+      if (sent === 'Message sent') {
+        setSnackbarSeverity('success');
         setSnackbarMessage("Post scheduled successfully");
-      })
-      .catch(error => {
-        setLoading(false);
-        setSnackbarMessage(error.message);
-      });
+      } else {
+        setSnackbarSeverity('error');
+        setSnackbarMessage(sent);
+      }
+    }
+    finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -127,7 +116,7 @@ function App() {
       imageText: memeText
     };
 
-    fetch('https://u411m4oucg.execute-api.us-east-1.amazonaws.com/dev', {
+    fetch('https://s6cl88rzo4.execute-api.us-east-1.amazonaws.com/dev/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
