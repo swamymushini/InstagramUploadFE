@@ -23,24 +23,31 @@ function PickMyLine() {
   };
 
   const handlePrompts = async () => {
-    setLoading(true);
     if (prompt === '') {
       setSnackbarOpen(true);
       setSnackbarSeverity('error');
       setSnackbarMessage("Prompt text is empty");
       return;
     }
+    setLoading(true);
+    try {
+      const message = "I'm looking for a romantic pickup line inspired by software engineering terms,"
+        + " specifically the concept of a " + prompt + ". Can you provide me a pickup line (excluding 'Are you a')"
+        + " along with a heading of three words ? "
+        + "Please format the response as a JSON object with 'heading' and 'pickupLine' fields."
+      const result = await generateLovePickupLine(message);
+      const obj = JSON.parse(result);
+      setHeading(obj.heading);
+      setMemeText(obj.pickupLine);
+      console.log(result);
+    } catch (error) {
+      setSnackbarOpen(true);
+      setSnackbarSeverity('error');
+      setSnackbarMessage("Prompt text is empty");
+      console.log(error);
+      setLoading(false);
+    }
 
-    const message = "I'm looking for a romantic pickup line inspired by software engineering terms,"
-      + " specifically the concept of a "+prompt+". Can you provide me a pickup line (excluding 'Are you a')"
-      + " along with a heading of three words ? "
-      + "Please format the response as a JSON object with 'heading' and 'pickupLine' fields."
-    const result = await generateLovePickupLine(message);
-    const obj = JSON.parse(result);
-    setHeading(obj.heading);
-    setMemeText(obj.pickupLine);
-    console.log(result);
-    setLoading(false);
   }
 
   const schedulePost = (e) => {
