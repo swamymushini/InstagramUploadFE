@@ -6,7 +6,7 @@ import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import generateLovePickupLine from './openAI.js';
 
-function PickMyLine() {
+function App() {
 
   const [heading, setHeading] = useState('');
   const [memeText, setMemeText] = useState('');
@@ -23,14 +23,15 @@ function PickMyLine() {
   };
 
   const handlePrompts = async () => {
+    
     if (prompt === '') {
       setSnackbarOpen(true);
       setSnackbarSeverity('error');
       setSnackbarMessage("Prompt text is empty");
       return;
     }
+
     setLoading(true);
-    try {
       const message = "I'm looking for a romantic pickup line inspired by software engineering terms,"
         + " specifically the concept of a " + prompt + ". Can you provide me a pickup line (excluding 'Are you a')"
         + " along with a heading of three words ? "
@@ -40,14 +41,7 @@ function PickMyLine() {
       setHeading(obj.heading);
       setMemeText(obj.pickupLine);
       console.log(result);
-    } catch (error) {
-      setSnackbarOpen(true);
-      setSnackbarSeverity('error');
-      setSnackbarMessage("Prompt text is empty");
-      console.log(error);
       setLoading(false);
-    }
-
   }
 
   const schedulePost = (e) => {
@@ -60,7 +54,7 @@ function PickMyLine() {
     }
 
     if (pin !== '7417') {
-      setPinError(true);
+      // setPinError(true);
       setSnackbarSeverity('error');
       setSnackbarMessage("Enter correct pin");
       setSnackbarOpen(true);
@@ -255,4 +249,4 @@ function PickMyLine() {
   )
 }
 
-export default PickMyLine
+export default App;
