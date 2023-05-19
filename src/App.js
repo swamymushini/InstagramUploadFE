@@ -1,8 +1,12 @@
+
 import React, { useState } from 'react';
-import { Button, TextField, Grid, Snackbar, Alert } from '@mui/material';
+import "./home.scss";
+import { Grid, Snackbar, Alert } from '@mui/material';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
-function App() {
+import generateLovePickupLine from './openAI.js';
+
+function PickMyLine() {
 
   const [heading, setHeading] = useState('');
   const [memeText, setMemeText] = useState('');
@@ -12,10 +16,32 @@ function App() {
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [prompt, setPrompt] = useState('');
 
   const closeLoading = () => {
     setLoading(false);
   };
+
+  const handlePrompts = async () => {
+    setLoading(true);
+    if (prompt === '') {
+      setSnackbarOpen(true);
+      setSnackbarSeverity('error');
+      setSnackbarMessage("Prompt text is empty");
+      return;
+    }
+
+    const message = "I'm looking for a romantic pickup line inspired by software engineering terms,"
+      + " specifically the concept of a "+prompt+". Can you provide me a pickup line (excluding 'Are you a')"
+      + " along with a heading of three words ? "
+      + "Please format the response as a JSON object with 'heading' and 'pickupLine' fields."
+    const result = await generateLovePickupLine(message);
+    const obj = JSON.parse(result);
+    setHeading(obj.heading);
+    setMemeText(obj.pickupLine);
+    console.log(result);
+    setLoading(false);
+  }
 
   const schedulePost = (e) => {
 
@@ -82,7 +108,7 @@ function App() {
       return;
     }
 
-    if (pin !== '7417') {
+    if (pin !== '3434') {
       setPinError(true);
       setSnackbarSeverity('error');
       setSnackbarMessage("Enter correct pin");
@@ -129,145 +155,97 @@ function App() {
     setSnackbarOpen(false);
   };
 
-  return (
-    <Grid
-      container
-      item
-      justifyContent="center"
-      spacing={2}
-      direction="column"
-      alignItems="center"
-      sx={{
-        maxWidth: '80%',
-        margin: '0 auto',
-        '@media (max-width: 60%)': {
-        },
-      }}
-    >
-      <Grid item sx={{ marginY: '0.5%' }} />
-
-      <h2 style={{ color: '#D41343' }}>Upload Meme to Instagram</h2>
-
-      <TextField
-        id="heading"
-        label="Heading"
-        required
-        onChange={(e) => setHeading(e.target.value)}
-        sx={{
-          width: '100%',
-          maxWidth: '400px',
-          '& .MuiOutlinedInput-input': {
-            borderWidth: '2px',
-          },
-          '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#0D92A5',
-          },
-          '& .MuiInputLabel-root.Mui-focused': {
-            color: '#D41343',
-          },
-        }}
-      />
-
-      <Grid item sx={{ marginY: '0.5%' }} />
-
-      <TextField
-        id="memeText"
-        label="Meme Text"
-        value={memeText}
-        onChange={(e) => setMemeText(e.target.value)}
-        multiline
-        required
-        rows={4}
-        maxLength={1000}
-        sx={{
-          width: '100%',
-          maxWidth: '400px',
-          '& .MuiOutlinedInput-input': {
-            borderWidth: '2px',
-          },
-          '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#0D92A5',
-          },
-          '& .MuiInputLabel-root.Mui-focused': {
-            color: '#D41343',
-          },
-        }}
-      />
-      <Grid item sx={{ marginY: '0.5%' }} />
-
-      <Grid item container justifyContent="center" spacing={2}>
-
-        <TextField
-          id="pin"
-          label="PIN"
-          type="number"
-          required
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          error={pinError}
-          helperText={pinError ? 'PIN is incorrect' : ''}
-          sx={{
-            width: '100%',
-            maxWidth: '150px',
-            '& .MuiOutlinedInput-input': {
-              borderWidth: '2px',
-            },
-            '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#0D92A5',
-            },
-            '& .MuiInputLabel-root.Mui-focused': {
-              color: '#D41343',
-            },
-          }}
-        />
-
-        <Grid item>
-          <Button
-            variant="contained"
-            onClick={schedulePost}
-            sx={{
-              backgroundColor: '#0D92A5',
-              color: '#FFFFFF',
-              '&:hover': {
-                backgroundColor: '#0D92A5',
-              },
-            }}
-          >
-            Schedule
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{
-              backgroundColor: '#D41343',
-              color: '#FFFFFF',
-              '&:hover': {
-                backgroundColor: '#D41343',
-              },
-            }}
-          >
-            Post Now
-          </Button>
-        </Grid>
-        <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleSnackbarClose}
+  return (<>
+    <div className="content">
+      <section className="center-heading">
+        <div className="bold-heading">
+          Generate <span className="hightlight-text">pick up lines</span> using ChatGPT
+        </div>
+      </section>
+      <section className="main-content-container">
+        <section className="main-content">
+          <section className="search-container">
+            <div className="pickupline-text">Pickup line content : </div>
+            <input
+              type="text"
+              placeholder={"github/codbugs/agile"}
+              required
+              name="prompt"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="search-box"
+            />
+          </section>
+          <section className="getyourline-button">
+            <button type="submit" className="search-button" onClick={handlePrompts}>
+              Generate
+            </button>
+          </section>
+        </section>
+        <Grid item sx={{ marginY: '1%' }} />
+        <section className="main-content">
+          <section className="search-container">
+            <input
+              type="text"
+              placeholder={"Heading"}
+              required
+              value={heading}
+              onChange={(e) => setHeading(e.target.value)}
+              className="search-box2"
+            />
+          </section>
+          <Grid item sx={{ marginY: '4%' }} />
+          <section className="search-container">
+            <textarea
+              type="text"
+              required
+              placeholder={"Meme text"}
+              value={memeText}
+              onChange={(e) => setMemeText(e.target.value)}
+              rows="6"
+              className="text-area"
+            />
+          </section>
+          <Grid item sx={{ marginY: '4%' }} />
+          <section className="search-container">
+            <input
+              type="text"
+              placeholder={"Enter Pass Key"}
+              required
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              className="search-box2"
+            />
+          </section>
+          <section className="getyourline-button">
+            <button type="submit" className="search-button2" onClick={schedulePost}>
+              Schedule
+            </button>
+            <Grid item sx={{ marginX: '2%' }} />
+            <div className="or-text">OR </div>
+            <Grid item sx={{ marginX: '2%' }} />
+            <button type="submit" className="search-button2" onClick={handleSubmit}>
+              Post Now
+            </button>
+          </section>
+        </section>
+      </section>
+      <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        >
-          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-        <Backdrop
-          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          open={loading}
-          onClick={closeLoading}
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
-      </Grid>
-    </Grid>
-  );
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+      <Backdrop
+        open={loading}
+        onClick={closeLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </div>
+  </>
+  )
 }
 
-export default App;
+export default PickMyLine
