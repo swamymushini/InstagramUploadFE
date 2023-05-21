@@ -14,8 +14,6 @@ const openai = new OpenAIApi(configuration);
 
 async function generateLovePickupLine(message) {
 
-  console.log(apiKey);
-
   const completions = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [

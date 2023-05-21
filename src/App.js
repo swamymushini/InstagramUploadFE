@@ -63,7 +63,7 @@ function App() {
       return;
     }
     e.preventDefault();
-
+    setLoading(true);
     const data = {
       type: 'SCHEDULE',
       payload: {
@@ -72,21 +72,15 @@ function App() {
       }
     };
 
-    setLoading(true);
     try {
       const sent = await sendSQSMessage(JSON.stringify(data));
-      console.log(sent);
-      if (sent === 'Message sent') {
-        setSnackbarOpen(true);
-        setSnackbarSeverity('success');
-        setSnackbarMessage("Post scheduled successfully");
-      } else {
-        setSnackbarOpen(true);
-        setSnackbarSeverity('error');
-        setSnackbarMessage(sent);
-      }
+      setSnackbarOpen(true);
+      setSnackbarSeverity('success');
+      setSnackbarMessage("Schedule request sent");
     }
-    catch(error){
+    catch (error) {
+      setSnackbarOpen(true);
+      setSnackbarSeverity(error.message);
       console.log(error);
     }
     finally {
