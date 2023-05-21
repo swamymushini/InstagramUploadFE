@@ -73,7 +73,8 @@ function App() {
     };
 
     try {
-      const sent = await sendSQSMessage(JSON.stringify(data));
+      const sent = await sendSQSMessage(data);
+      console.log(sent);
       setSnackbarOpen(true);
       setSnackbarSeverity('success');
       setSnackbarMessage("Schedule request sent");
